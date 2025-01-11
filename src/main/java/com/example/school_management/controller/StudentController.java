@@ -1,8 +1,5 @@
 package com.example.school_management.controller;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.school_management.dto.ResponseDTO;
 import com.example.school_management.entity.Student;
 import com.example.school_management.service.StudentService;
 
@@ -25,23 +23,23 @@ public class StudentController {
 		this.studentService = studentService;
 	}
 	@PostMapping("/create-student")
-	public Student createStudent(@RequestBody final Student student) {
+	public ResponseDTO createStudent(@RequestBody final Student student) {
 		return this.studentService.createStudent(student);
 	}
 	@GetMapping("/student/{id}")
-	public Optional<Student> getStudentById(@PathVariable final String id) {
+	public ResponseDTO getStudentById(@PathVariable final String id) {
 		return this.studentService.getStudentById(id);
 	}
-	@GetMapping("/reterive-student")
-	public List<Student>getStudentAll(){
+	@GetMapping("/retrieve-student")
+	public ResponseDTO getStudentAll(){
 		return this.studentService.getStudentAll();
 	}
 	@PutMapping("/update-student/{id}")
-	public String updateStudent(@PathVariable final String id,@RequestBody final Student student) {
+	public ResponseDTO updateStudent(@PathVariable final String id,@RequestBody final Student student) {
 		return this.studentService.updateStudent(id,student);
 	}
-	@DeleteMapping("/delete-student/{id}")
-	public String deleteStudent(@PathVariable final String id) {
+	@DeleteMapping("/remove-student/{id}")
+	public ResponseDTO deleteStudent(@PathVariable final String id) {
 		return this.studentService.deleteStudent(id);
 	}
 }
