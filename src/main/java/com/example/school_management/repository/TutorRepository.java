@@ -9,5 +9,5 @@ import java.util.List;
 @Repository
 public interface TutorRepository extends JpaRepository<Tutor, String> {
      List<Tutor> findBySchoolId(String id);
-
+//     List<Tutor> searchByName(String searchName);
 }

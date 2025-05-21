@@ -9,20 +9,23 @@ import com.example.school_management.exception.UserNotFoundException;
 import com.example.school_management.repository.SchoolRepository;
 import com.example.school_management.repository.StudentRepository;
 import com.example.school_management.repository.TutorRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import statusResponse.Constants;
+import utilities.Constants;
 
 import java.util.List;
 
 @Service
 public class SchoolService {
-
     private final SchoolRepository schoolRepository;
     private final StudentRepository studentRepository;
     private final TutorRepository tutorRepository;
 
-    public SchoolService(SchoolRepository schoolRepository, StudentRepository studentRepository, TutorRepository tutorRepository) {
+    public SchoolService(final SchoolRepository schoolRepository, StudentRepository studentRepository, TutorRepository tutorRepository) {
         this.schoolRepository = schoolRepository;
         this.studentRepository = studentRepository;
         this.tutorRepository = tutorRepository;
@@ -33,13 +36,13 @@ public class SchoolService {
         return ResponseDTO.builder().message(Constants.CREATED).data(createSchool).statusCode(HttpStatus.CREATED.value()).build();
     }
 
-    public ResponseDTO getSchoolById(final String id) {
+    public ResponseDTO retrieveSchoolById(final String id) {
         final School getSchoolId = this.schoolRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("School Id not found:" + id));
         return ResponseDTO.builder().message(Constants.RETRIEVED).data(getSchoolId).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO getAllSchool() {
+    public ResponseDTO retrieveAllSchool() {
         final List<School> getAllSchool = this.schoolRepository.findAll();
         return ResponseDTO.builder().message(Constants.RETRIEVED).data(getAllSchool).statusCode(HttpStatus.OK.value()).build();
     }
@@ -54,14 +57,14 @@ public class SchoolService {
         return ResponseDTO.builder().message(Constants.MODIFIED).data(updateSchool).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO deleteSchool(final String id) {
+    public ResponseDTO removeSchool(final String id) {
         final School deleteSchool = this.schoolRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("School Id not found:" + id));
         this.schoolRepository.delete(deleteSchool);
         return ResponseDTO.builder().message(Constants.REMOVED).data(deleteSchool).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO getSchoolDetails(final String id) {
+    public ResponseDTO retrieveSchoolDetails(final String id) {
         final School schools = this.schoolRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("School Id not found:" + id));
         this.schoolRepository.save(schools);
@@ -70,4 +73,22 @@ public class SchoolService {
         SchoolDTO schoolDTO = new SchoolDTO(id, students, tutors);
         return ResponseDTO.builder().message(Constants.RETRIEVED).data(schoolDTO).statusCode(HttpStatus.OK.value()).build();
     }
+
+    //    public ResponseDTO getSchoolByPage(int index, int size, String field, String searchName) {
+//        Sort sort = Sort.by(Sort.Direction.ASC, field);
+//        Pageable page = PageRequest.of(index, size, sort);
+//        Page<School> schools;
+//        if (searchName != null && !searchName.isEmpty()) {
+//            schools = schoolRepository.findByName(searchName, page);
+//        } else {
+//            schools = schoolRepository.findAll(page);
+//        }
+//        return ResponseDTO.builder().message(Constants.RETRIEVED).data(schools).statusCode(HttpStatus.OK.value()).build();
+//    }
+    public ResponseDTO getSchoolByPage(final int pageNumber, final int pageSize, final boolean sort, final String field, final String search) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sort ? Sort.Direction.ASC : Sort.Direction.DESC, field));
+        Page<School> searchSchools = this.schoolRepository.findByName(search, pageable);
+        return ResponseDTO.builder().message(Constants.RETRIEVED).data(searchSchools).statusCode(HttpStatus.OK.value()).build();
+    }
+
 }

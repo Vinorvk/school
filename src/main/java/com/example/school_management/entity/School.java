@@ -18,5 +18,4 @@ public class School {
     private String email;
     @Column(name = "city")
     private String city;
-
 }

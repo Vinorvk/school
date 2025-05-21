@@ -9,9 +9,13 @@ import com.example.school_management.entity.Studentanswer;
 import com.example.school_management.exception.UserNotFoundException;
 import com.example.school_management.repository.StudentAnswerRepository;
 import com.example.school_management.repository.StudentRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import statusResponse.Constants;
+import utilities.Constants;
 
 import java.util.List;
 
@@ -20,7 +24,7 @@ public class StudentService {
     private final StudentRepository studentRepository;
     private final StudentAnswerRepository studentanswerRepository;
 
-    public StudentService(StudentRepository studentRepository, StudentAnswerRepository studentanswerRepository) {
+    public StudentService(final StudentRepository studentRepository, StudentAnswerRepository studentanswerRepository) {
         this.studentRepository = studentRepository;
         this.studentanswerRepository = studentanswerRepository;
     }
@@ -30,18 +34,18 @@ public class StudentService {
         return ResponseDTO.builder().message(Constants.CREATED).data(createStudent).statusCode(HttpStatus.CREATED.value()).build();
     }
 
-    public ResponseDTO getStudentById(final String id) {
+    public ResponseDTO retrieveStudentById(final String id) {
         final Student student = this.studentRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Student Id not found:" + id));
         return ResponseDTO.builder().message(Constants.RETRIEVED).data(student).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO getStudentAll() {
+    public ResponseDTO retrieveStudentAll() {
         final List<Student> getAllStudent = this.studentRepository.findAll();
         return ResponseDTO.builder().message(Constants.RETRIEVED).data(getAllStudent).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO getMarksById(String id) {
+    public ResponseDTO retrieveMarksById(String id) {
         final Student student = this.studentRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Student Id not found:" + id));
         final List<Studentanswer> studentanswers = this.studentanswerRepository.findByStudentId(id);
@@ -58,7 +62,7 @@ public class StudentService {
         return ResponseDTO.builder().message(Constants.RETRIEVED).data(markdto).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO studentTest(String id) {
+    public ResponseDTO retrieveStudentTest(String id) {
         final Student student = this.studentRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Student Id not found:" + id));
         this.studentRepository.save(student);
@@ -75,10 +79,23 @@ public class StudentService {
         return ResponseDTO.builder().message(Constants.MODIFIED).data(studentDetails).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO deleteStudent(final String id) {
+    public ResponseDTO removeStudent(final String id) {
         final Student deleteStudents = this.studentRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Student Id not found:" + id));
         this.studentRepository.delete(deleteStudents);
         return ResponseDTO.builder().message(Constants.REMOVED).data(deleteStudents).statusCode(HttpStatus.OK.value()).build();
     }
+
+    //    public ResponseDTO getStudentByPage(int index,int size,String field){
+//        Sort sort = Sort.by(Sort.Direction.ASC,field);
+//        Pageable page = PageRequest.of(index,size,sort);
+//        Page<Student> students = studentRepository.findAll(page);
+//        return ResponseDTO.builder().message(Constants.RETRIEVED).data(students).statusCode(HttpStatus.OK.value()).build();
+//    }
+    public ResponseDTO getStudentByPage(final int pageNumber, final int pageSize, final boolean sort, final String field, final String search) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(sort ? Sort.Direction.ASC : Sort.Direction.DESC, field));
+        Page<Student> searchStudents = this.studentRepository.findByName(search, pageable);
+        return ResponseDTO.builder().message(Constants.RETRIEVED).data(searchStudents).statusCode(HttpStatus.OK.value()).build();
+    }
+
 }

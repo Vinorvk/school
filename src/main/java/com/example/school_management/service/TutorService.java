@@ -11,9 +11,13 @@ import com.example.school_management.repository.QuestionsRepository;
 import com.example.school_management.repository.StudentAnswerRepository;
 import com.example.school_management.repository.StudentRepository;
 import com.example.school_management.repository.TutorRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import statusResponse.Constants;
+import utilities.Constants;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +29,7 @@ public class TutorService {
     private final StudentAnswerRepository studentanswerRepository;
     private final QuestionsRepository questionRepository;
 
-    public TutorService(TutorRepository tutorRepository, StudentRepository studentRepository, StudentAnswerRepository studentanswerRepository, QuestionsRepository questionRepository) {
+    public TutorService(final TutorRepository tutorRepository, StudentRepository studentRepository, StudentAnswerRepository studentanswerRepository, QuestionsRepository questionRepository) {
         this.tutorRepository = tutorRepository;
         this.studentRepository = studentRepository;
         this.studentanswerRepository = studentanswerRepository;
@@ -38,17 +42,27 @@ public class TutorService {
     }
 
     public ResponseDTO addQuestionsAndChoices(final Questions questions) {
-        final Questions question = this.questionRepository.save(questions);
-        return ResponseDTO.builder().message(Constants.CREATED).data(question).statusCode(HttpStatus.CREATED.value()).build();
+//        final Questions question = this.questionRepository.save(questions);
+        String correctAnswer = questions.getCorrect_answer();
+        String option1 = questions.getOption1();
+        String option2 = questions.getOption2();
+        String option3 = questions.getOption3();
+        if (!correctAnswer.contains(option1) && !correctAnswer.contains(option2) && !correctAnswer.contains(option3)) {
+            throw new UserNotFoundException("does not match any options");
+        } else {
+            final Questions addQuestion = this.questionRepository.save(questions);
+            return ResponseDTO.builder().message(Constants.CREATED).data(addQuestion).statusCode(HttpStatus.CREATED.value()).build();
+        }
+//        return ResponseDTO.builder().message(Constants.CREATED).data(question).statusCode(HttpStatus.CREATED.value()).build();
     }
 
-    public ResponseDTO getTutorById(final String id) {
+    public ResponseDTO retrieveTutorById(final String id) {
         final Tutor tutor = this.tutorRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Tutor Id not found:" + id));
         return ResponseDTO.builder().message(Constants.RETRIEVED).data(tutor).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO getAllTutor() {
+    public ResponseDTO retrieveAllTutor() {
         final List<Tutor> getAllTutor = this.tutorRepository.findAll();
         return ResponseDTO.builder().message(Constants.RETRIEVED).data(getAllTutor).statusCode(HttpStatus.OK.value()).build();
     }
@@ -67,7 +81,7 @@ public class TutorService {
         return marks;
     }
 
-    public ResponseDTO getAllMarks() {
+    public ResponseDTO retrieveAllMarks() {
         final List<Student> students = this.studentRepository.findAll();
         final List<MarkDTO> studentMarks = new ArrayList<>();
 
@@ -91,10 +105,23 @@ public class TutorService {
         return ResponseDTO.builder().message(Constants.MODIFIED).data(updateTutor).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO deleteTutor(final String id) {
+    public ResponseDTO removeTutor(final String id) {
         final Tutor deleTutor = this.tutorRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Tutor Id not found:" + id));
         this.tutorRepository.delete(deleTutor);
         return ResponseDTO.builder().message(Constants.REMOVED).data(deleTutor).statusCode(HttpStatus.OK.value()).build();
     }
+
+    //    public ResponseDTO getTutorByPage(int index, int size, String field) {
+//        Sort sort = Sort.by(Sort.Direction.ASC, field);
+//        Pageable page = PageRequest.of(index, size, sort);
+//        Page<Tutor> tutors = tutorRepository.findAll(page);
+//        return ResponseDTO.builder().message(Constants.RETRIEVED).data(tutors).statusCode(HttpStatus.OK.value()).build();
+//    }
+//    public ResponseDTO getTutorByPage(final int pageNumber, final int pageSize, final boolean order, final String field) {
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(order ? Sort.Direction.ASC : Sort.Direction.DESC, field));
+//        Page<Tutor> tutors = this.tutorRepository.findAll(pageable);
+//        return ResponseDTO.builder().message(Constants.RETRIEVED).data(tutors).statusCode(HttpStatus.OK.value()).build();
+//    }
+
 }

@@ -15,7 +15,6 @@ public class Student {
     private String id;
     @Column(name = "name")
     private String name;
-
     @ManyToOne
     private School school;
 }

@@ -4,18 +4,21 @@ import com.example.school_management.dto.ResponseDTO;
 import com.example.school_management.entity.Course;
 import com.example.school_management.exception.UserNotFoundException;
 import com.example.school_management.repository.CourseRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import statusResponse.Constants;
+import utilities.Constants;
 
 import java.util.List;
 
 @Service
 public class CourseService {
-
     private final CourseRepository courseRepository;
 
-    public CourseService(CourseRepository courseRepository) {
+    public CourseService(final CourseRepository courseRepository) {
         this.courseRepository = courseRepository;
     }
 
@@ -24,13 +27,13 @@ public class CourseService {
         return ResponseDTO.builder().message(Constants.CREATED).data(createCourse).statusCode(HttpStatus.CREATED.value()).build();
     }
 
-    public ResponseDTO getCourseById(final String id) {
+    public ResponseDTO retrieveCourseById(final String id) {
         final Course course = this.courseRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Course Id not found:" + id));
         return ResponseDTO.builder().message(Constants.RETRIEVED).data(course).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO getAllCourse() {
+    public ResponseDTO retrieveAllCourse() {
         final List<Course> getAllStudent = this.courseRepository.findAll();
         return ResponseDTO.builder().message(Constants.RETRIEVED).data(getAllStudent).statusCode(HttpStatus.OK.value()).build();
     }
@@ -46,7 +49,7 @@ public class CourseService {
         return ResponseDTO.builder().message(Constants.MODIFIED).data(updateCourse).statusCode(HttpStatus.OK.value()).build();
     }
 
-    public ResponseDTO deleteCourse(final String id) {
+    public ResponseDTO removeCourse(final String id) {
         final Course deleteCourse = this.courseRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException("Course Id not found:" + id));
         this.courseRepository.delete(deleteCourse);

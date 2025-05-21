@@ -7,5 +7,4 @@ import lombok.Data;
 @Builder
 public class AnswerDTO {
     private String student_answer;
-
 }

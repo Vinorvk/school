@@ -14,7 +14,6 @@ public class Course {
     private String id;
     @Column(name = "courses")
     private String courses;
-
     @ManyToOne
     private School school;
     @ManyToOne

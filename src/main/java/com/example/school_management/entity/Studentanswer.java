@@ -14,8 +14,6 @@ public class Studentanswer {
     private String id;
     @Column(name = "student_answer")
     private String student_answer;
-
-
     @ManyToOne
     private Student student;
     @ManyToOne

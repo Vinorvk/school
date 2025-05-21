@@ -22,7 +22,6 @@ public class Questions {
     private String option3;
     @Column(name = "correct_answer")
     private String correct_answer;
-
     @ManyToOne
     private Tutor tutor;
 }
